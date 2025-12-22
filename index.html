@@ -1,37 +1,36 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Kanban Board with Undo Redo</title>
+    <title>Kanban Board Undo Redo</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h1>Kanban Board </h1>
-
+<h1>Kanban Board</h1>
 <div class="controls">
+    <input type="text" id="taskInput" placeholder="Task name">
+    <button onclick="createTask()">Create Task</button>
     <button onclick="undo()">Undo</button>
     <button onclick="redo()">Redo</button>
 </div>
 
 <div class="board">
-    <div class="column" id="todo">
-        <h2>To Do</h2>
+    <div class="col" id="todo">
+        <h3>TODO</h3>
     </div>
-
-    <div class="column" id="progress">
-        <h2>In Progress</h2>
+    <div class="col" id="progress">
+        <h3>IN PROGRESS</h3>
     </div>
-
-    <div class="column" id="done">
-        <h2>Done</h2>
+    <div class="col" id="done">
+        <h3>DONE</h3>
     </div>
 </div>
 
-<h2>Action Timeline</h2>
-<div id="timeline" class="timeline"></div>
+<h2>Timeline</h2>
+<div id="timeline"></div>
 
 <script src="script.js"></script>
 </body>
 </html>
+
 

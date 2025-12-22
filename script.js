@@ -1,23 +1,62 @@
+let taskCounter = 0;
+
+/* ---------- ACTION CLASS ---------- */
 class Action {
-    constructor(taskId, fromCol, toCol) {
+    constructor(type, taskId, from, to, oldText = null, newText = null) {
+        this.type = type;
         this.taskId = taskId;
-        this.fromCol = fromCol;
-        this.toCol = toCol;
+        this.from = from;
+        this.to = to;
+        this.oldText = oldText;
+        this.newText = newText;
     }
 
     apply() {
-        document.getElementById(this.toCol).appendChild(
-            document.getElementById(this.taskId)
-        );
+        const task = document.getElementById(this.taskId);
+
+        switch (this.type) {
+            case "CREATE":
+                document.getElementById(this.to).appendChild(task);
+                break;
+
+            case "MOVE":
+                document.getElementById(this.to).appendChild(task);
+                break;
+
+            case "EDIT":
+                task.querySelector("span").innerText = this.newText;
+                break;
+
+            case "DELETE":
+                task.remove();
+                break;
+        }
     }
 
     undo() {
-        document.getElementById(this.fromCol).appendChild(
-            document.getElementById(this.taskId)
-        );
+        const task = document.getElementById(this.taskId);
+
+        switch (this.type) {
+            case "CREATE":
+                task.remove();
+                break;
+
+            case "MOVE":
+                document.getElementById(this.from).appendChild(task);
+                break;
+
+            case "EDIT":
+                task.querySelector("span").innerText = this.oldText;
+                break;
+
+            case "DELETE":
+                document.getElementById(this.from).appendChild(task);
+                break;
+        }
     }
 }
 
+/* ---------- DLL NODE ---------- */
 class Node {
     constructor(action) {
         this.action = action;
@@ -26,6 +65,7 @@ class Node {
     }
 }
 
+/* ---------- HISTORY (DLL) ---------- */
 class History {
     constructor() {
         this.head = null;
@@ -35,8 +75,14 @@ class History {
     add(action) {
         const node = new Node(action);
 
-        // clear future
+        // Clear future history
         if (this.current && this.current.next) {
+            let temp = this.current.next;
+            while (temp) {
+                let nxt = temp.next;
+                temp.prev = temp.next = null;
+                temp = nxt;
+            }
             this.current.next = null;
         }
 
@@ -70,37 +116,68 @@ class History {
 
 const history = new History();
 
-// Initial task
-const task = document.createElement("div");
-task.className = "task";
-task.id = "task1";
-task.innerText = "Task 1 (Click to Move)";
-task.onclick = moveTask;
-document.getElementById("todo").appendChild(task);
+/* ---------- UI FUNCTIONS ---------- */
 
-function moveTask() {
-    const task = document.getElementById("task1");
-    const parent = task.parentElement.id;
+function createTask() {
+    const input = document.getElementById("taskInput");
+    if (!input.value.trim()) return;
 
-    let next;
-    if (parent === "todo") next = "progress";
-    else if (parent === "progress") next = "done";
-    else next = "todo";
+    const id = "task" + (++taskCounter);
+    const task = document.createElement("div");
+    task.id = id;
+    task.className = "task";
 
-    history.add(new Action("task1", parent, next));
+    const text = document.createElement("span");
+    text.innerText = input.value;
+
+    const moveBtn = document.createElement("button");
+    moveBtn.innerText = "Move";
+    moveBtn.onclick = () => moveTask(id);
+
+    const editBtn = document.createElement("button");
+    editBtn.innerText = "Edit";
+    editBtn.onclick = () => editTask(id);
+
+    const delBtn = document.createElement("button");
+    delBtn.innerText = "Delete";
+    delBtn.onclick = () => deleteTask(id);
+
+    task.append(text, moveBtn, editBtn, delBtn);
+    document.body.appendChild(task); // temp attach
+
+    history.add(new Action("CREATE", id, null, "todo"));
+    input.value = "";
 }
 
-function undo() {
-    history.undo();
+function moveTask(id) {
+    const task = document.getElementById(id);
+    const from = task.parentElement.id;
+    const to = from === "todo" ? "progress" : from === "progress" ? "done" : "todo";
+    history.add(new Action("MOVE", id, from, to));
 }
 
-function redo() {
-    history.redo();
+function editTask(id) {
+    const task = document.getElementById(id);
+    const span = task.querySelector("span");
+    const newText = prompt("Edit task", span.innerText);
+    if (newText === null) return;
+
+    history.add(new Action("EDIT", id, null, null, span.innerText, newText));
 }
 
+function deleteTask(id) {
+    const task = document.getElementById(id);
+    const from = task.parentElement.id;
+    history.add(new Action("DELETE", id, from, null));
+}
+
+function undo() { history.undo(); }
+function redo() { history.redo(); }
+
+/* ---------- TIMELINE ---------- */
 function renderTimeline() {
-    const timeline = document.getElementById("timeline");
-    timeline.innerHTML = "";
+    const t = document.getElementById("timeline");
+    t.innerHTML = "";
 
     let temp = history.head;
     while (temp) {
@@ -108,9 +185,8 @@ function renderTimeline() {
         div.className = "event";
         if (temp === history.current) div.classList.add("current");
 
-        div.innerText = `${temp.action.taskId}: ${temp.action.fromCol} → ${temp.action.toCol}`;
-        timeline.appendChild(div);
-
+        div.innerText = `${temp.action.type} : ${temp.action.taskId}`;
+        t.appendChild(div);
         temp = temp.next;
     }
 }
