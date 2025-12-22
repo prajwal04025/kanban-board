@@ -1,10 +1,10 @@
 let taskCounter = 0;
 
-/* ---------- ACTION CLASS ---------- */
+/* ================= ACTION ================= */
 class Action {
-    constructor(type, taskId, from, to, oldText = null, newText = null) {
+    constructor(type, taskNode, from, to, oldText = null, newText = null) {
         this.type = type;
-        this.taskId = taskId;
+        this.taskNode = taskNode; // 🔥 always store node
         this.from = from;
         this.to = to;
         this.oldText = oldText;
@@ -12,51 +12,47 @@ class Action {
     }
 
     apply() {
-        const task = document.getElementById(this.taskId);
-
         switch (this.type) {
             case "CREATE":
-                document.getElementById(this.to).appendChild(task);
+                document.getElementById(this.to).appendChild(this.taskNode);
                 break;
 
             case "MOVE":
-                document.getElementById(this.to).appendChild(task);
+                document.getElementById(this.to).appendChild(this.taskNode);
                 break;
 
             case "EDIT":
-                task.querySelector("span").innerText = this.newText;
+                this.taskNode.querySelector("span").innerText = this.newText;
                 break;
 
             case "DELETE":
-                task.remove();
+                this.taskNode.remove();
                 break;
         }
     }
 
     undo() {
-        const task = document.getElementById(this.taskId);
-
         switch (this.type) {
             case "CREATE":
-                task.remove();
+                this.taskNode.remove();
                 break;
 
             case "MOVE":
-                document.getElementById(this.from).appendChild(task);
+                document.getElementById(this.from).appendChild(this.taskNode);
                 break;
 
             case "EDIT":
-                task.querySelector("span").innerText = this.oldText;
+                this.taskNode.querySelector("span").innerText = this.oldText;
                 break;
 
             case "DELETE":
-                document.getElementById(this.from).appendChild(task);
+                document.getElementById(this.from).appendChild(this.taskNode);
                 break;
         }
     }
 }
 
-/* ---------- DLL NODE ---------- */
+/* ================= DLL NODE ================= */
 class Node {
     constructor(action) {
         this.action = action;
@@ -65,7 +61,7 @@ class Node {
     }
 }
 
-/* ---------- HISTORY (DLL) ---------- */
+/* ================= HISTORY (DLL) ================= */
 class History {
     constructor() {
         this.head = null;
@@ -75,7 +71,7 @@ class History {
     add(action) {
         const node = new Node(action);
 
-        // Clear future history
+        // clear future
         if (this.current && this.current.next) {
             let temp = this.current.next;
             while (temp) {
@@ -106,75 +102,86 @@ class History {
     }
 
     redo() {
-        if (this.current && this.current.next) {
+        if (!this.current) {
+            // redo from beginning
+            if (this.head) {
+                this.current = this.head;
+                this.current.action.apply();
+            }
+        } else if (this.current.next) {
             this.current = this.current.next;
             this.current.action.apply();
-            renderTimeline();
         }
+        renderTimeline();
     }
 }
 
 const history = new History();
 
-/* ---------- UI FUNCTIONS ---------- */
+/* ================= UI ================= */
 
 function createTask() {
     const input = document.getElementById("taskInput");
     if (!input.value.trim()) return;
 
-    const id = "task" + (++taskCounter);
     const task = document.createElement("div");
-    task.id = id;
     task.className = "task";
+    task.id = "task" + (++taskCounter);
 
-    const text = document.createElement("span");
-    text.innerText = input.value;
+    const span = document.createElement("span");
+    span.innerText = input.value;
 
     const moveBtn = document.createElement("button");
     moveBtn.innerText = "Move";
-    moveBtn.onclick = () => moveTask(id);
+    moveBtn.onclick = () => moveTask(task);
 
     const editBtn = document.createElement("button");
     editBtn.innerText = "Edit";
-    editBtn.onclick = () => editTask(id);
+    editBtn.onclick = () => editTask(task);
 
     const delBtn = document.createElement("button");
     delBtn.innerText = "Delete";
-    delBtn.onclick = () => deleteTask(id);
+    delBtn.onclick = () => deleteTask(task);
 
-    task.append(text, moveBtn, editBtn, delBtn);
-    document.body.appendChild(task); // temp attach
+    task.append(span, moveBtn, editBtn, delBtn);
 
-    history.add(new Action("CREATE", id, null, "todo"));
+    history.add(new Action("CREATE", task, null, "todo"));
     input.value = "";
 }
 
-function moveTask(id) {
-    const task = document.getElementById(id);
+function moveTask(task) {
     const from = task.parentElement.id;
-    const to = from === "todo" ? "progress" : from === "progress" ? "done" : "todo";
-    history.add(new Action("MOVE", id, from, to));
+    const to =
+        from === "todo" ? "progress" :
+        from === "progress" ? "done" : "todo";
+
+    history.add(new Action("MOVE", task, from, to));
 }
 
-function editTask(id) {
-    const task = document.getElementById(id);
+function editTask(task) {
     const span = task.querySelector("span");
     const newText = prompt("Edit task", span.innerText);
     if (newText === null) return;
 
-    history.add(new Action("EDIT", id, null, null, span.innerText, newText));
+    history.add(new Action(
+        "EDIT",
+        task,
+        null,
+        null,
+        span.innerText,
+        newText
+    ));
 }
 
-function deleteTask(id) {
-    const task = document.getElementById(id);
+function deleteTask(task) {
     const from = task.parentElement.id;
-    history.add(new Action("DELETE", id, from, null));
+    history.add(new Action("DELETE", task, from, null));
 }
 
 function undo() { history.undo(); }
 function redo() { history.redo(); }
 
-/* ---------- TIMELINE ---------- */
+/* ================= TIMELINE ================= */
 function renderTimeline() {
     const t = document.getElementById("timeline");
     t.innerHTML = "";
@@ -184,8 +191,7 @@ function renderTimeline() {
         const div = document.createElement("div");
         div.className = "event";
         if (temp === history.current) div.classList.add("current");
-
-        div.innerText = `${temp.action.type} : ${temp.action.taskId}`;
+        div.innerText = temp.action.type;
         t.appendChild(div);
         temp = temp.next;
     }

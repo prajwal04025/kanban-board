@@ -1,47 +1,242 @@
+/* ================= ROOT COLORS ================= */
+:root {
+    --todo: #3b82f6;        /* Blue */
+    --progress: #f59e0b;    /* Amber */
+    --done: #22c55e;        /* Green */
+    --bg: #f4f6f8;
+    --card: #ffffff;
+    --text: #1f2937;
+}
+
+/* ================= GLOBAL ================= */
+* {
+    box-sizing: border-box;
+    transition: all 0.25s ease-in-out;
+}
+
 body {
-    font-family: Arial;
-    padding: 20px;
+    margin: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+}
+
+/* ================= HEADER ================= */
+header {
+    background: linear-gradient(135deg, #4f46e5, #6366f1);
+    color: white;
+    padding: 22px;
+    text-align: center;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+}
+
+header h1 {
+    margin: 0;
+    font-size: 28px;
+}
+
+header p {
+    margin-top: 6px;
+    opacity: 0.9;
+}
+
+/* ================= CONTROLS ================= */
+.controls {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    padding: 16px;
+    background: var(--card);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 .controls input {
-    padding: 6px;
+    padding: 10px;
+    width: 240px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.controls input:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79,70,229,0.2);
 }
 
 .controls button {
-    padding: 6px 10px;
-    margin-left: 5px;
+    padding: 10px 16px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    background: #e5e7eb;
 }
 
+.controls button:hover {
+    transform: translateY(-2px) scale(1.05);
+    background: #dbeafe;
+}
+
+/* ================= BOARD ================= */
 .board {
     display: flex;
-    gap: 20px;
+    gap: 22px;
+    padding: 22px;
 }
 
-.col {
-    width: 200px;
-    min-height: 250px;
-    background: #f0f0f0;
+/* ================= COLUMN BASE ================= */
+.column {
+    flex: 1;
+    background: var(--card);
+    border-radius: 14px;
+    padding: 14px;
+    min-height: 340px;
+    box-shadow: 0 10px 22px rgba(0,0,0,0.15);
+    transform: translateY(0);
+}
+
+.column:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 18px 35px rgba(0,0,0,0.25);
+}
+
+/* ================= COLUMN HEADERS ================= */
+.column h2 {
+    text-align: center;
+    margin-top: 0;
     padding: 10px;
+    border-radius: 10px;
+    color: white;
 }
 
+/* To Do column */
+#todo h2 {
+    background: linear-gradient(135deg, var(--todo), #60a5fa);
+}
+
+/* In Progress column */
+#progress h2 {
+    background: linear-gradient(135deg, var(--progress), #fbbf24);
+}
+
+/* Done column */
+#done h2 {
+    background: linear-gradient(135deg, var(--done), #4ade80);
+}
+
+/* ================= TASK CARD ================= */
 .task {
-    background: white;
-    margin: 8px 0;
-    padding: 6px;
+    background: #f9fafb;
+    padding: 12px;
+    margin-bottom: 12px;
+    border-radius: 12px;
     cursor: pointer;
+    transform: translateY(0) scale(1);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
 }
 
-#timeline {
-    margin-top: 20px;
-    border-left: 3px solid gray;
-    padding-left: 10px;
+/* Colored borders based on column */
+#todo .task {
+    border-left: 6px solid var(--todo);
+}
+
+#progress .task {
+    border-left: 6px solid var(--progress);
+}
+
+#done .task {
+    border-left: 6px solid var(--done);
+}
+
+/* Hover floating effect */
+.task:hover {
+    transform: translateY(-6px) scale(1.03);
+    box-shadow: 0 14px 30px rgba(0,0,0,0.25);
+    background: white;
+}
+
+.task span {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+/* ================= TASK BUTTONS ================= */
+.task button {
+    font-size: 12px;
+    padding: 5px 9px;
+    margin-right: 6px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+/* Move */
+.task button:nth-child(2) {
+    background: #bfdbfe;
+}
+
+/* Edit */
+.task button:nth-child(3) {
+    background: #fde68a;
+}
+
+/* Delete */
+.task button:nth-child(4) {
+    background: #fca5a5;
+    color: white;
+}
+
+/* ================= TIMELINE ================= */
+.timeline-section {
+    padding: 22px;
+}
+
+.timeline {
+    border-left: 5px solid #c7d2fe;
+    padding-left: 18px;
 }
 
 .event {
-    margin-bottom: 8px;
+    background: #eef2ff;
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    position: relative;
 }
 
-.current {
+.event::before {
+    content: "";
+    position: absolute;
+    left: -14px;
+    top: 10px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #6366f1;
+}
+
+/* Hover timeline */
+.event:hover {
+    transform: translateX(10px);
+    background: #c7d2fe;
+}
+
+/* Current timeline event */
+.event.current {
+    background: #dcfce7;
+    color: #166534;
     font-weight: bold;
-    color: green;
+}
+
+.event.current::before {
+    background: var(--done);
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 900px) {
+    .board {
+        flex-direction: column;
+    }
 }

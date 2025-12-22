@@ -1,36 +1,58 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Kanban Board Undo Redo</title>
+    <meta charset="UTF-8">
+    <title>Visual Kanban Task Timeline</title>
+
+    <!-- Link CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h1>Kanban Board</h1>
-<div class="controls">
-    <input type="text" id="taskInput" placeholder="Task name">
-    <button onclick="createTask()">Create Task</button>
+<header>
+    <h1>Visual Kanban Task Timeline</h1>
+    <p>Unlimited Undo / Redo using Doubly Linked List</p>
+</header>
+
+<!-- ===== Controls ===== -->
+<section class="controls">
+    <input type="text" id="taskInput" placeholder="Enter task title">
+    <button onclick="createTask()">Add Task</button>
     <button onclick="undo()">Undo</button>
     <button onclick="redo()">Redo</button>
-</div>
+</section>
 
-<div class="board">
-    <div class="col" id="todo">
-        <h3>TODO</h3>
-    </div>
-    <div class="col" id="progress">
-        <h3>IN PROGRESS</h3>
-    </div>
-    <div class="col" id="done">
-        <h3>DONE</h3>
-    </div>
-</div>
+<!-- ===== Kanban Board ===== -->
+<section class="board">
 
-<h2>Timeline</h2>
-<div id="timeline"></div>
+    <!-- TO DO COLUMN -->
+    <div class="column" id="todo">
+        <h2>To Do</h2>
+        <!-- Tasks with status = todo go here -->
+    </div>
 
+    <!-- IN PROGRESS COLUMN -->
+    <div class="column" id="progress">
+        <h2>In Progress</h2>
+        <!-- Tasks with status = progress go here -->
+    </div>
+
+    <!-- DONE COLUMN -->
+    <div class="column" id="done">
+        <h2>Done</h2>
+        <!-- Tasks with status = done go here -->
+    </div>
+
+</section>
+
+<!-- ===== Timeline ===== -->
+<section class="timeline-section">
+    <h2>Action Timeline</h2>
+    <div id="timeline" class="timeline"></div>
+</section>
+
+<!-- Link JavaScript -->
 <script src="script.js"></script>
+
 </body>
 </html>
-
-
