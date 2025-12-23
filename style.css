@@ -1,8 +1,8 @@
 /* ================= ROOT COLORS ================= */
 :root {
-    --todo: #3b82f6;        /* Blue */
-    --progress: #f59e0b;    /* Amber */
-    --done: #22c55e;        /* Green */
+    --todo: #3da095;        /* Blue */
+    --progress: #469ab6;    /* Amber */
+    --done: #35789d;        /* Green */
     --bg: #f4f6f8;
     --card: #ffffff;
     --text: #1f2937;
@@ -23,7 +23,7 @@ body {
 
 /* ================= HEADER ================= */
 header {
-    background: linear-gradient(135deg, #4f46e5, #6366f1);
+    background: linear-gradient(135deg, #413c0c, #6366f1);
     color: white;
     padding: 22px;
     text-align: center;

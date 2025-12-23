@@ -149,6 +149,13 @@ function createTask() {
     input.value = "";
 }
 
+function getCurrentTime() {
+    const now = new Date();
+    return now.toLocaleString(); // date + time (local)
+}
+
+
+
 function moveTask(task) {
     const from = task.parentElement.id;
     const to =
